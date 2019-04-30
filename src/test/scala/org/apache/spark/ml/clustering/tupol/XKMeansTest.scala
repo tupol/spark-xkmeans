@@ -36,7 +36,6 @@ class XKMeansTest extends FunSuite with SparkContextSpec with Matchers {
     probByDim_Center(0) should be > 0.900
     probByDim_Center(1) should be > 0.900
 
-    println(XKMeansReporting.modelReport(xkmeans))
   }
 
   test("Probability by feature/dimension for 2 simple clusters") {
@@ -52,7 +51,7 @@ class XKMeansTest extends FunSuite with SparkContextSpec with Matchers {
     val df = sqlContext.createDataFrame(sc.parallelize(dataPoints).map(Row(_)), schema)
 
     // Train the XKMeans model
-    val xkmeans = new XKMeans().setSeed(1).setK(2).setMaxIter(10).setTol(1E-6)
+    val xkmeans = new XKMeans().setSeed(1).setK(2).setMaxIter(10).setTol(1E-6).setXSigma(2)
       .setFeatureNames(Some(Seq("feature0", "feature1"))).fit(df)
 
     // Test probability by dimension for a record close to the centroid
@@ -68,7 +67,7 @@ class XKMeansTest extends FunSuite with SparkContextSpec with Matchers {
     val testDF_Dim1 = sqlContext.createDataFrame(testData_Dim1.map(Row(_)), schema)
     val resultDF_Dim1 = xkmeans.transform(testDF_Dim1)
     val probByDim_Dim1 = resultDF_Dim1.first().getAs[Seq[Double]]("probabilityByFeature").toArray
-    probByDim_Dim1(0) should be < 0.4
+    probByDim_Dim1(0) should be < 0.3
     probByDim_Dim1(1) should be > 0.9
 
     // Test probability by dimension for a record far from the centroid on the second dimension
@@ -77,7 +76,7 @@ class XKMeansTest extends FunSuite with SparkContextSpec with Matchers {
     val resultDF_Dim2 = xkmeans.transform(testDF_Dim2)
     val probByDim_Dim2 = resultDF_Dim2.first().getAs[Seq[Double]]("probabilityByFeature").toArray
     probByDim_Dim2(0) should be > 0.900
-    probByDim_Dim2(1) should be < 0.4
+    probByDim_Dim2(1) should be < 0.3
   }
 
   test("Probability by feature/dimension for 2 clusters, one of which has variance 0 on one dimension") {
@@ -126,7 +125,7 @@ class XKMeansTest extends FunSuite with SparkContextSpec with Matchers {
     val testDF_Dim1 = sqlContext.createDataFrame(testData_Dim1.map(Row(_)), schema)
     val resultDF_Dim1 = xkmeans.transform(testDF_Dim1)
     val probByDim_Dim1 = resultDF_Dim1.first().getAs[Seq[Double]]("probabilityByFeature").toArray
-    probByDim_Dim1(0) should be < 0.4
+    probByDim_Dim1(0) should be < 0.3
     probByDim_Dim1(1) should be > 0.900
   }
 

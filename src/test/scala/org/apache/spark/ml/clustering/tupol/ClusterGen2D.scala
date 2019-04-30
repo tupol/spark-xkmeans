@@ -1,26 +1,30 @@
 package org.apache.spark.ml.clustering.tupol
 
+import breeze.numerics.{ cos, sin }
 import org.apache.spark.ml.linalg.{ Vector, Vectors }
+
+import scala.util.Random
 
 /**
  * Generate 2D cluster data in different shapes
  */
 object ClusterGen2D {
 
-  import math._
+  val random = new Random()
+  def nextGaussian = random.nextGaussian / 3
 
   def line(points: Int = 200, origin: Vector = Vectors.dense(Array(0.0, 0.0)),
     length: Double = 1, theta: Double = 0): Seq[Vector] = {
     require(points > 0, s"The number of points to be generated ($points) must be greater than 0.")
     (0 until points).
-      map(x => Vectors.dense(Array(math.random * length * cos(theta) + origin(0), math.random * length * sin(theta) + origin(1))))
+      map(x => Vectors.dense(Array(nextGaussian * length * cos(theta) + origin(0), nextGaussian * length * sin(theta) + origin(1))))
   }
 
   def rectangle(points: Int = 200, origin: Vector = Vectors.dense(Array(-0.5, -0.5)),
     width: Double = 1, height: Double = 1): Seq[Vector] = {
     require(points > 0, s"The number of points to be generated ($points) must be greater than 0.")
     (0 until points).
-      map(x => Vectors.dense(Array(math.random * width + origin(0), math.random * height + origin(1))))
+      map(x => Vectors.dense(Array(nextGaussian * width + origin(0), nextGaussian * height + origin(1))))
   }
 
   def square(points: Int = 200, origin: Vector = Vectors.dense(Array(-0.5, -0.5)), side: Double = 1): Seq[Vector] =
@@ -37,9 +41,8 @@ object ClusterGen2D {
     require(points > 0, s"The number of points to be generated ($points) must be greater than 0.")
     require(minRadius >= 0, s"The minimum radius ($minRadius) must be greater or equal to 0.")
     require(minRadius < maxRadius, s"The minimum radius ($minRadius) must be smaller than the maximum radius ($maxRadius).")
-    import math._
     (0 until points).
-      map(x => (math.random * (maxRadius - minRadius) + minRadius, math.random * (maxTheta - minTheta) + minTheta)).
+      map(x => (nextGaussian * (maxRadius - minRadius) + minRadius, nextGaussian * (maxTheta - minTheta) + minTheta)).
       map {
         case (r, t) => Vectors.dense(Array(center(0) + r * cos(t), center(1) + r * sin(t)))
       }

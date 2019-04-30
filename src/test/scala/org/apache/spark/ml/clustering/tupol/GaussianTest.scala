@@ -29,10 +29,11 @@ class GaussianTest extends FunSuite with SparkContextSpec with Matchers {
     // Train the XKMeans2 model
     val gmix = new GaussianMixture().setK(2).setMaxIter(10).setTol(1E-6).fit(df)
 
-    gmix.gaussians.map(_.mean).foreach(println)
-
     // Test probability by dimension for a record close to the centroid
-    val testData_Center = sc.parallelize(Seq(Vectors.dense(Array(0.0, 0.0)), Vectors.dense(Array(4.0, 0.0))))
+    val testData_Center = sc.parallelize(Seq(
+      Vectors.dense(Array(0.0, 0.0)),
+      Vectors.dense(Array(4.0, 0.0)),
+      Vectors.dense(Array(4.0, 2.0))))
     val testDF_Center = sqlContext.createDataFrame(testData_Center.map(Row(_)), schema)
     val resultDF_Center = gmix.transform(testDF_Center)
 
